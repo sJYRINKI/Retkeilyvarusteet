@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <title>Uusi retkeilyvarustelista</title>
+</head>
+
+<body>
+  <h1>Uusi retkeilyvarustelista</h1>
+  <form action="/create_item" method="post">
+    <p>
+      Repun nimi: <br />
+      <input type="text" name="title" />
+    </p>
+    <p>
+        Sisältö: <br />
+        <textarea name="description" rows="8" cols="60"></textarea>
+    </p>
+    <p>
+    Repun hinta <br />
+    <input type="text" name="price" size="5"/> €
+    </p>
+    <input type="submit" value="Luo reppu" />
+  </form>
+</body>
+
+</html>
