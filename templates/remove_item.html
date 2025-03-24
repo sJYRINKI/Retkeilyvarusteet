@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <title>Repun poisto</title>
+</head>
+
+<body>
+  <h1>Repun poisto</h1>
+  <p>Reppu: {{ item.title }}</p>
+  <p>Haluatko varmasti poistaa tämän repun </p>
+  <form action="/remove_item/{{ item.id }}" method="post">
+    <input type="submit" name="remove" value="Poista reppu">
+    <input type="submit" name="back" value="Palaa takaisin">
+  </form>
+</body>
+
+</html>
