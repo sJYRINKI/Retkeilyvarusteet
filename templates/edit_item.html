@@ -10,15 +10,15 @@
   <form action="/update_item" method="post">
     <p>
       Repun nimi: <br />
-      <input type="text" name="title" value="{{ item.title}}"/>
+      <input type="text" name="title" value="{{ item.title}}" maxlength="50" required />
     </p>
     <p>
         Sisältö: <br />
-        <textarea name="description" rows="8" cols="60">{{ item.description }}</textarea>
+        <textarea name="description" rows="8" cols="60" maxlength="100" required>{{ item.description }}</textarea>
     </p>
     <p>
     Repun hinta <br />
-    <input type="text" name="price" size="5" value="{{ item.price }}" /> €
+    <input type="text" name="price" size="5" value="{{ item.price }}" pattern="[1-9][0-9]{0,3}" required /> €
     </p>
     <input type="hidden" name="item_id" value="{{ item.id }}" />
     <input type="submit" value="Päivitä reppu" />
