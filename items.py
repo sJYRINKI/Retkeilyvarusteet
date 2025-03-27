@@ -13,7 +13,8 @@ def get_all_classes():
     return classes
 
 def add_item(title, description, price, user_id, classes):
-    sql = """INSERT INTO items (title, description, price, user_id) VALUES (?, ?, ?, ?)"""
+    sql = """INSERT INTO items (title, description, price, user_id)
+             VALUES (?, ?, ?, ?)"""
     db.execute(sql, [title, description, price, user_id])
 
     item_id = db.last_insert_id()
