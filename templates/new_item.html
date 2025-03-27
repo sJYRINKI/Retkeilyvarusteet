@@ -20,26 +20,17 @@
     Repun hinta <br />
     <input type="text" name="price" size="5" pattern="[1-9][0-9]{0,3}" required /> €
     </p>
+    {% for class in classes %}
     <p>
-      Vuodenaika: <br />
-      <select name="season">
+      {{ class }}: <br />
+      <select name="classes">
         <option value="">(valitse)</option>
-        <option value="3-vuodenaikaa">3-vuodenaikaa</option>
-        <option value="4-vuodenaikaa">4-vuodenaikaa</option>
-        <option value="talvi">talvi</option>
-        <option value="kesä">kesä</option>
+      {% for option in classes[class] %}
+        <option value="{{class}}:{{ option }}">{{ option }}</option>
+      {% endfor %}
       </select>
-     </p>
-     <p>
-      Kesto: <br />
-      <select name="duration">
-        <option value="">(valitse)</option>
-        <option value="1 päivä">1 päivä</option>
-        <option value="2-4 päivää">2-4 päivää</option>
-        <option value="5-7 päivää">5-7 päivää</option>
-        <option value="7-14 päivää">7-14 päivää</option>
-      </select>
-      </p>
+    </p>
+    {% endfor %}
     <input type="submit" value="Luo reppu" />
   </form>
 </body>
