@@ -21,6 +21,21 @@
     <input type="text" name="price" size="5" value="{{ item.price }}" pattern="[1-9][0-9]{0,3}" required /> €
     </p>
     <input type="hidden" name="item_id" value="{{ item.id }}" />
+        {% for class in all_classes %}
+    <p>
+      {{ class }}: <br />
+      <select name="classes">
+        <option value="">(valitse)</option>
+      {% for option in all_classes[class] %}
+        {% if classes[class] == option %}
+        <option value="{{class}}:{{ option }}" selected>{{ option }}</option>
+        {% else %}
+        <option value="{{class}}:{{ option }}">{{ option }}</option>
+        {% endif %}
+      {% endfor %}
+      </select>
+    </p>
+    {% endfor %}
     <input type="submit" value="Päivitä reppu" />
   </form>
 </body>
