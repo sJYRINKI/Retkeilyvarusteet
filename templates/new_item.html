@@ -1,12 +1,9 @@
-<!DOCTYPE html>
-<html>
+{% extends "layout.html" %}
 
-<head>
-  <title>Uusi retkeilyvarustelista</title>
-</head>
+{% block title %}Uusi retkeilyvarustelista{% endblock %}
 
-<body>
-  <h1>Uusi retkeilyvarustelista</h1>
+{% block content %}
+  <h2>Uusi retkeilyvarustelista</h2>
   <form action="/create_item" method="post">
     <p>
       Repun nimi: <br />
@@ -33,6 +30,4 @@
     {% endfor %}
     <input type="submit" value="Luo reppu" />
   </form>
-</body>
-
-</html>
+{% endblock %}
