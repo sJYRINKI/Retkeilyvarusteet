@@ -13,7 +13,7 @@ CREATE TABLE items (
 );
 
 CREATE TABLE comments (
-    id integer PRIMARY KEY,
+    id INTEGER PRIMARY KEY,
     item_id INTEGER REFERENCES items,
     user_id INTEGER REFERENCES users,
     comment TEXT

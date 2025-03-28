@@ -11,9 +11,6 @@
   <a href="/images/{{ item.id }}">Kuvat</a>
 </p>
 {% endif %}
-{% for image in images %}
-<img src="/image/{{ image.id }}" />
-{% endfor %}
 <p>
   {{ item.description }}
 </p>
@@ -36,7 +33,15 @@
 <h3>Kommentit</h3>
 <ul>
   {% for comment in comments %}
-  <li>{{ comment.comment }}, <a href="/user/{{ comment.user_id }}">{{ comment.username }}</a></li>
+  <li>{{ comment.comment }}, <a href="/user/{{ comment.user_id }}">{{ comment.id }}</a>
+  {% if session.user_id == comment.user_id %}
+  <form action="/remove_comment/{{ comment.id }}" method="post">
+        <input type="hidden" name="item_id" value="{{ item.id }}" />
+        <input type="submit" name="remove" value="Poista" />
+  </form>
+  {% endif %}
+  </li>
+
   {% endfor %}
 </ul>
 <h3>Uusi kommentti</h3>

@@ -57,6 +57,20 @@ def show_image(image_id):
     response.headers.set("Content-Type", "image/png")
     return response
 
+@app.route("/remove_comment/<int:comment_id>", methods=["POST"])
+def remove_comment(comment_id):
+    require_login()
+
+    comment = items.check_comment(comment_id)
+    item_id = request.form["item_id"]
+    if comment["user_id"] != session["user_id"]:
+        abort(403)
+    if not comment:
+        abort(404)
+
+    items.remove_comment(comment_id)
+    return redirect("/item/" + str(item_id))
+
 @app.route("/new_item")
 def new_item():
     require_login()
