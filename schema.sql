@@ -4,7 +4,7 @@ CREATE TABLE users (
     password_hash TEXT
 );
 
-CREATE TABLE items (
+CREATE TABLE packs (
     id INTEGER PRIMARY KEY,
     title TEXT,
     description TEXT,
@@ -14,7 +14,7 @@ CREATE TABLE items (
 
 CREATE TABLE comments (
     id INTEGER PRIMARY KEY,
-    item_id INTEGER REFERENCES items,
+    pack_id INTEGER REFERENCES packs,
     user_id INTEGER REFERENCES users,
     comment TEXT
 );
@@ -25,15 +25,15 @@ CREATE TABLE classes (
     value TEXT
 );
 
-CREATE TABLE item_classes (
+CREATE TABLE pack_classes (
     id INTEGER PRIMARY KEY,
-    item_id INTEGER REFERENCES items ON DELETE CASCADE,
+    pack_id INTEGER REFERENCES packs ON DELETE CASCADE,
     title TEXT,
     value TEXT
 );
 
 CREATE TABLE images (
     id INTEGER PRIMARY KEY,
-    item_id INTEGER REFERENCES items ON DELETE CASCADE,
+    pack_id INTEGER REFERENCES packs ON DELETE CASCADE,
     image BLOB
 );

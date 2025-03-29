@@ -5,7 +5,7 @@
 {% block content %}
 <h2>Hae retkeilyvarustelistoja</h2>
 
-<form action="/find_item" method="get">
+<form action="/find_pack" method="get">
 <p>
   Hakusana: <input type="text" name="query" value="{{ query }}">
 </p>
@@ -16,8 +16,8 @@
 <h2>Tulokset</h2>
 
 <ul>
-  {% for item in results %}
-  <li><a href="/item/{{ item.id }}">{{ item.title }}</a></li>
+  {% for pack in results %}
+  <li><a href="/pack/{{ pack.id }}">{{ pack.title }}</a></li>
   {% endfor %}
 </ul>
 {% endif %}

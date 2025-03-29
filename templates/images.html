@@ -15,7 +15,7 @@
   <img src="/image/{{ image.id }}" />
   <br />
   {% endfor %}
-  <input type="hidden" name="item_id" value="{{ item.id }}" />
+  <input type="hidden" name="pack_id" value="{{ pack.id }}" />
   <p>
     <input type="submit" name="remove" value="Poista valitut" />
     <input type="submit" name="back" value="Palaa takaisin">
@@ -27,7 +27,7 @@
   <p>
     Kuva: <input type="file" name="image" accept=".png" />
   </p>
-  <input type="hidden" name="item_id" value="{{ item.id }}" />
+  <input type="hidden" name="pack_id" value="{{ pack.id }}" />
   <input type="submit" value="Lähetä" />
 </form>
 {% endblock %}

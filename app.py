@@ -3,7 +3,7 @@ from flask import Flask
 from flask import abort, make_response, redirect, render_template, request, session
 import db
 import config
-import items
+import packs
 import re
 import users
 
@@ -16,40 +16,40 @@ def require_login():
 
 @app.route("/")
 def index():
-    all_items = items.get_items()
-    return render_template("index.html", items=all_items)
+    all_packs = packs.get_packs()
+    return render_template("index.html", packs=all_packs)
 
 @app.route("/user/<int:user_id>")
 def show_user(user_id):
     user = users.get_user(user_id)
     if not user:
         abort(404)
-    items = users.get_items(user_id)
-    return render_template("show_user.html", user=user, items=items)
+    packs = users.get_packs(user_id)
+    return render_template("show_user.html", user=user, packs=packs)
 
-@app.route("/find_item")
-def find_item():
+@app.route("/find_pack")
+def find_pack():
     query = request.args.get("query")
     if query:
-        results = items.find_items(query)
+        results = packs.find_packs(query)
     else:
         query = ""
         results = []
-    return render_template("find_item.html", query=query, results=results)
+    return render_template("find_pack.html", query=query, results=results)
 
-@app.route("/item/<int:item_id>")
-def show_item(item_id):
-    item = items.get_item(item_id)
-    if not item:
+@app.route("/pack/<int:pack_id>")
+def show_pack(pack_id):
+    pack = packs.get_pack(pack_id)
+    if not pack:
         abort(404)
-    classes = items.get_classes(item_id)
-    comments = items.get_comments(item_id)
-    images = items.get_images(item_id)
-    return render_template("show_item.html", item=item, classes=classes, comments=comments, images=images)
+    classes = packs.get_classes(pack_id)
+    comments = packs.get_comments(pack_id)
+    images = packs.get_images(pack_id)
+    return render_template("show_pack.html", pack=pack, classes=classes, comments=comments, images=images)
 
 @app.route("/image/<int:image_id>")
 def show_image(image_id):
-    image = items.get_image(image_id)
+    image = packs.get_image(image_id)
     if not image:
         abort(404)
 
@@ -61,24 +61,24 @@ def show_image(image_id):
 def remove_comment(comment_id):
     require_login()
 
-    comment = items.check_comment(comment_id)
-    item_id = request.form["item_id"]
+    comment = packs.check_comment(comment_id)
+    pack_id = request.form["pack_id"]
     if comment["user_id"] != session["user_id"]:
         abort(403)
     if not comment:
         abort(404)
 
-    items.remove_comment(comment_id)
-    return redirect("/item/" + str(item_id))
+    packs.remove_comment(comment_id)
+    return redirect("/pack/" + str(pack_id))
 
-@app.route("/new_item")
-def new_item():
+@app.route("/new_pack")
+def new_pack():
     require_login()
-    classes = (items.get_all_classes())
-    return render_template("new_item.html", classes=classes)
+    classes = (packs.get_all_classes())
+    return render_template("new_pack.html", classes=classes)
 
-@app.route("/create_item", methods=["POST"])
-def create_item():
+@app.route("/create_pack", methods=["POST"])
+def create_pack():
     require_login()
 
     title = request.form["title"]
@@ -92,7 +92,7 @@ def create_item():
         abort(403)
     user_id = session["user_id"]
 
-    all_classes = items.get_all_classes()
+    all_classes = packs.get_all_classes()
 
     classes = []
     for entry in request.form.getlist("classes"):
@@ -104,7 +104,7 @@ def create_item():
                 abort(403)
             classes.append((class_title, class_value))
 
-    items.add_item(title, description, price,  user_id, classes)
+    packs.add_pack(title, description, price,  user_id, classes)
 
     return redirect("/")
 
@@ -115,58 +115,58 @@ def create_comment():
     comment = request.form["comment"]
     if not comment or len(comment) > 200:
         abort(403)
-    item_id = request.form["item_id"]
-    item = items.get_item(item_id)
-    if not item:
+    pack_id = request.form["pack_id"]
+    pack = packs.get_pack(pack_id)
+    if not pack:
         abort(404)
     user_id = session["user_id"]
 
-    all_classes = items.get_all_classes()
+    all_classes = packs.get_all_classes()
 
-    items.add_comment(item_id, user_id, comment)
+    packs.add_comment(pack_id, user_id, comment)
 
-    return redirect("/item/" + str(item_id))
+    return redirect("/pack/" + str(pack_id))
 
-@app.route("/edit_item/<int:item_id>")
-def edit_item(item_id):
+@app.route("/edit_pack/<int:pack_id>")
+def edit_pack(pack_id):
     require_login()
-    item = items.get_item(item_id)
-    if not item:
+    pack = packs.get_pack(pack_id)
+    if not pack:
         abort(404)
-    if item["user_id"] != session["user_id"]:
+    if pack["user_id"] != session["user_id"]:
         abort(403)
 
-    all_classes = items.get_all_classes()
+    all_classes = packs.get_all_classes()
     classes = {}
     for my_class in all_classes:
         classes[my_class] = ""
-    for entry in items.get_classes(item_id):
+    for entry in packs.get_classes(pack_id):
         classes[entry["title"]] = entry["value"]
 
-    return render_template("edit_item.html", item=item, classes=classes, all_classes=all_classes)
+    return render_template("edit_pack.html", pack=pack, classes=classes, all_classes=all_classes)
 
-@app.route("/images/<int:item_id>")
-def edit_images(item_id):
+@app.route("/images/<int:pack_id>")
+def edit_images(pack_id):
     require_login()
-    item = items.get_item(item_id)
-    if not item:
+    pack = packs.get_pack(pack_id)
+    if not pack:
         abort(404)
-    if item["user_id"] != session["user_id"]:
+    if pack["user_id"] != session["user_id"]:
         abort(403)
 
-    images = items.get_images(item_id)
+    images = packs.get_images(pack_id)
 
-    return render_template("images.html", item=item, images=images)
+    return render_template("images.html", pack=pack, images=images)
 
 @app.route("/add_image", methods=["POST"])
 def add_image():
     require_login()
 
-    item_id = request.form["item_id"]
-    item = items.get_item(item_id)
-    if not item:
+    pack_id = request.form["pack_id"]
+    pack = packs.get_pack(pack_id)
+    if not pack:
         abort(404)
-    if item["user_id"] != session["user_id"]:
+    if pack["user_id"] != session["user_id"]:
         abort(403)
 
     file = request.files["image"]
@@ -177,35 +177,35 @@ def add_image():
     if len(image) > 100 * 1024:
         return "VIRHE: liian suuri kuva"
 
-    items.add_image(item_id, image)
-    return redirect("/images/" + str(item_id))
+    packs.add_image(pack_id, image)
+    return redirect("/images/" + str(pack_id))
 
 @app.route("/remove_images", methods=["POST"])
 def remove_images():
     require_login()
 
-    item_id = request.form["item_id"]
-    item = items.get_item(item_id)
-    if not item:
+    pack_id = request.form["pack_id"]
+    pack = packs.get_pack(pack_id)
+    if not pack:
         abort(404)
-    if item["user_id"] != session["user_id"]:
+    if pack["user_id"] != session["user_id"]:
         abort(403)
 
     if "remove" in request.form:
         for image_id in request.form.getlist("image_id"):
-            items.remove_image(item_id, image_id)
-            return redirect("/images/" + str(item_id))
+            packs.remove_image(pack_id, image_id)
+            return redirect("/images/" + str(pack_id))
     else:
-        return redirect("/item/" + str(item_id))
+        return redirect("/pack/" + str(pack_id))
 
-@app.route("/update_item", methods=["POST"])
-def update_item():
+@app.route("/update_pack", methods=["POST"])
+def update_pack():
     require_login()
-    item_id = request.form["item_id"]
-    item = items.get_item(item_id)
-    if not item:
+    pack_id = request.form["pack_id"]
+    pack = packs.get_pack(pack_id)
+    if not pack:
         abort(404)
-    if item["user_id"] != session["user_id"]:
+    if pack["user_id"] != session["user_id"]:
         abort(403)
 
     title = request.form["title"]
@@ -219,7 +219,7 @@ def update_item():
         abort(403)
 
     if "update" in request.form:
-        all_classes = items.get_all_classes()
+        all_classes = packs.get_all_classes()
 
         classes = []
         for entry in request.form.getlist("classes"):
@@ -231,30 +231,30 @@ def update_item():
                     abort(403)
                 classes.append((class_title, class_value))
 
-        items.update_item(item_id, title, description, price, classes)
-        return redirect("/item/" + str(item_id))
+        packs.update_pack(pack_id, title, description, price, classes)
+        return redirect("/pack/" + str(pack_id))
 
     else:
-        return redirect("/item/" + str(item_id))
+        return redirect("/pack/" + str(pack_id))
 
-@app.route("/remove_item/<int:item_id>", methods=["GET", "POST"])
-def remove_item(item_id):
+@app.route("/remove_pack/<int:pack_id>", methods=["GET", "POST"])
+def remove_pack(pack_id):
     require_login()
-    item = items.get_item(item_id)
-    if not item:
+    pack = packs.get_pack(pack_id)
+    if not pack:
         abort(404)
-    if item["user_id"] != session["user_id"]:
+    if pack["user_id"] != session["user_id"]:
         abort(403)
 
     if request.method == "GET":
-        return render_template("remove_item.html", item=item)
+        return render_template("remove_pack.html", pack=pack)
 
     if request.method == "POST":
         if "remove" in request.form:
-            items.remove_item(item_id)
+            packs.remove_pack(pack_id)
             return redirect("/")
         else:
-            return redirect("/item/" + str(item_id))
+            return redirect("/pack/" + str(pack_id))
 
 @app.route("/register")
 def register():

@@ -4,9 +4,9 @@
 
 {% block content %}
 <h2>Repun poisto</h2>
-<p>Reppu: {{ item.title }}</p>
+<p>Reppu: {{ pack.title }}</p>
 <p>Haluatko varmasti poistaa tämän repun </p>
-<form action="/remove_item/{{ item.id }}" method="post">
+<form action="/remove_pack/{{ pack.id }}" method="post">
   <input type="submit" name="remove" value="Poista reppu">
   <input type="submit" name="back" value="Palaa takaisin">
 </form>

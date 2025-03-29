@@ -6,8 +6,8 @@
 <h2>Reput</h2>
 
 <ul>
-  {% for item in items %}
-  <li><a href="/item/{{ item.id }}">{{ item.title }}</a></li>
+  {% for pack in packs %}
+  <li><a href="/pack/{{ pack.id }}">{{ pack.title }}</a></li>
   {% endfor %}
   </ul>
 {% endblock %}
