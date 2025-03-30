@@ -271,9 +271,9 @@ def create():
     try:
         users.create_user(username, password1)
     except sqlite3.IntegrityError:
-        return "VIRHE: tunnus on jo varattu"
+        abort(403)
 
-    return "Tunnus luotu"
+    return render_template("user_created.html", message="Tunnus luotu")
 
 @app.route("/login", methods=["GET", "POST"])
 def login():
