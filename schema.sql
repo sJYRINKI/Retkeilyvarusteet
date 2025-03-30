@@ -14,7 +14,7 @@ CREATE TABLE packs (
 
 CREATE TABLE comments (
     id INTEGER PRIMARY KEY,
-    pack_id INTEGER REFERENCES packs,
+    pack_id INTEGER REFERENCES packs ON DELETE CASCADE,
     user_id INTEGER REFERENCES users,
     comment TEXT
 );
