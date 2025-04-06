@@ -1,18 +1,19 @@
 import sqlite3
 from flask import Flask
 from flask import abort, make_response, redirect, render_template, request, session
-import db
 import config
 import packs
 import re
 import users
+import error
+from werkzeug.security import check_password_hash, generate_password_hash
 
 app = Flask(__name__)
 app.secret_key = config.secret_key
 
 def require_login():
     if "user_id" not in session:
-        abort(403)
+        return error.render_page("Kirjautuminen vaaditaan", "Virhe kirjautumisessa")
 
 @app.route("/")
 def index():
@@ -23,7 +24,7 @@ def index():
 def show_user(user_id):
     user = users.get_user(user_id)
     if not user:
-        abort(404)
+        return error.render_page("Käyttäjää ei löytynyt", "Virhe käyttäjän hakemisessa")
     packs = users.get_packs(user_id)
     return render_template("show_user.html", user=user, packs=packs)
 
@@ -41,7 +42,7 @@ def find_pack():
 def show_pack(pack_id):
     pack = packs.get_pack(pack_id)
     if not pack:
-        abort(404)
+        return error.render_page("Reppua ei löytynyt", "Virhe repun hakemisessa")
     classes = packs.get_classes(pack_id)
     comments = packs.get_comments(pack_id)
     images = packs.get_images(pack_id)
@@ -51,7 +52,7 @@ def show_pack(pack_id):
 def show_image(image_id):
     image = packs.get_image(image_id)
     if not image:
-        abort(404)
+        return error.render_page("Kuvaa ei löytynyt", "Virhe kuvan hakemisessa")
 
     response = make_response(bytes(image))
     response.headers.set("Content-Type", "image/png")
@@ -63,10 +64,10 @@ def remove_comment(comment_id):
 
     comment = packs.check_comment(comment_id)
     pack_id = request.form["pack_id"]
-    if comment["user_id"] != session["user_id"]:
-        abort(403)
     if not comment:
-        abort(404)
+        return error.render_page("Kommentia ei löytynyt", "Virhe kommentin poistossa")
+    if comment["user_id"] != session["user_id"]:
+        return error.render_page("Käyttäjällä ei ole oikeutta poistaa kommenttia", "Virhe kommentin poistossa")
 
     packs.remove_comment(comment_id)
     return redirect("/pack/" + str(pack_id))
@@ -82,14 +83,14 @@ def create_pack():
     require_login()
 
     title = request.form["title"]
-    if not title or len(title) > 50:
-        abort(403)
+    if not title or len(title) > 50 or not title.strip():
+        return error.render_page("Virheellinen repun nimi", "Virhe repun lisäämisessä")
     description = request.form["description"]
     if not description or len(description) > 1000:
-        abort(403)
+        return error.render_page("Virheellinen repun kuvaus", "Virhe repun lisäämisessä")
     price = request.form["price"]
     if not re.search("^[1-9][0-9]{0,3}$", price):
-        abort(403)
+        return error.render_page("Virheellinen hinta repun sisällölle", "Virhe repun lisäämisessä")
     user_id = session["user_id"]
 
     all_classes = packs.get_all_classes()
@@ -99,9 +100,9 @@ def create_pack():
         if entry:
             class_title, class_value = entry.split(":")
             if class_title not in all_classes:
-                abort(403)
+                return error.render_page("Virheellinen luokitus", "Virhe repun lisäämisessä")
             if class_value not in all_classes[class_title]:
-                abort(403)
+                return error.render_page("Virheellinen luokitus", "Virhe repun lisäämisessä")
             classes.append((class_title, class_value))
 
     packs.add_pack(title, description, price,  user_id, classes)
@@ -114,11 +115,11 @@ def create_comment():
 
     comment = request.form["comment"]
     if not comment or len(comment) > 200:
-        abort(403)
+        return error.render_page("Kommentia ei löytynyt tai virhe kommentin pituudessa", "Virhe kommentin lisäämisessä")
     pack_id = request.form["pack_id"]
     pack = packs.get_pack(pack_id)
     if not pack:
-        abort(404)
+        return error.render_page("Reppua ei löytynyt", "Virhe kommentin lisäämisessä")
     user_id = session["user_id"]
 
     all_classes = packs.get_all_classes()
@@ -132,9 +133,9 @@ def edit_pack(pack_id):
     require_login()
     pack = packs.get_pack(pack_id)
     if not pack:
-        abort(404)
+        return error.render_page("Reppua ei löytynyt", "Virhe repun muokkauksessa")
     if pack["user_id"] != session["user_id"]:
-        abort(403)
+        return error.render_page("Käyttäjällä ei ole oikeuksia muokata reppua", "Virhe repun muokkauksessa")
 
     all_classes = packs.get_all_classes()
     classes = {}
@@ -150,9 +151,9 @@ def edit_images(pack_id):
     require_login()
     pack = packs.get_pack(pack_id)
     if not pack:
-        abort(404)
+        return error.render_page("Reppua ei löytynyt", "Virhe kuvan muokkauksessa")
     if pack["user_id"] != session["user_id"]:
-        abort(403)
+        return error.render_page("Käyttäjällä ei ole oikeuksia muokata kuvaa", "Virhe kuvan muokkauksessa")
 
     images = packs.get_images(pack_id)
 
@@ -165,17 +166,17 @@ def add_image():
     pack_id = request.form["pack_id"]
     pack = packs.get_pack(pack_id)
     if not pack:
-        abort(404)
+        return error.render_page("Reppua ei löytynyt", "Virhe kuvan lisäyksessä")
     if pack["user_id"] != session["user_id"]:
         abort(403)
 
     file = request.files["image"]
     if not file.filename.endswith(".png"):
-        return "VIRHE: väärä tiedostomuoto"
+        return error.render_page("Virhe tiedosto tyypissä", "Virhe kuvan lisäyksessä")
 
     image = file.read()
     if len(image) > 100 * 1024:
-        return "VIRHE: liian suuri kuva"
+        return error.render_page("Virhe kuvan koossa", "Virhe kuvan lisäyksessä")
 
     packs.add_image(pack_id, image)
     return redirect("/images/" + str(pack_id))
@@ -187,9 +188,9 @@ def remove_images():
     pack_id = request.form["pack_id"]
     pack = packs.get_pack(pack_id)
     if not pack:
-        abort(404)
+        return error.render_page("Kuvaa ei löytynyt", "Virhe kuvan poistossa")
     if pack["user_id"] != session["user_id"]:
-        abort(403)
+        return error.render_page("Käyttäjällä ei ole oikeutta kuvan poistoon", "Virhe kuvan poistossa")
 
     if "remove" in request.form:
         for image_id in request.form.getlist("image_id"):
@@ -204,19 +205,19 @@ def update_pack():
     pack_id = request.form["pack_id"]
     pack = packs.get_pack(pack_id)
     if not pack:
-        abort(404)
+        return error.render_page("Reppua ei löytynyt", "Virhe repun päivityksessä")
     if pack["user_id"] != session["user_id"]:
-        abort(403)
+        return error.render_page("Käyttäjällä ei ole oikeuksia päivittää reppua", "Virhe repun päivityksessä")
 
     title = request.form["title"]
-    if not title or len(title) > 50:
-        abort(403)
+    if not title or len(title) > 50 or not title.strip():
+        return error.render_page("Virheellinen repun nimi", "Virhe repun päivityksessä")
     description = request.form["description"]
     if not description or len(description) > 1000:
-        abort(403)
+        return error.render_page("Virheellinen kuvaus repulle", "Virhe repun päivityksessä")
     price = request.form["price"]
     if not re.search("^[1-9][0-9]{0,3}$", price):
-        abort(403)
+        return error.render_page("Virheellinen hinta repun sisällölle", "Virhe repun päivityksessä")
 
     if "update" in request.form:
         all_classes = packs.get_all_classes()
@@ -226,9 +227,9 @@ def update_pack():
             if entry:
                 class_title, class_value = entry.split(":")
                 if class_title not in all_classes:
-                    abort(403)
+                    return error.render_page("Virheellinen luokitus", "Virhe repun päivityksessä")
                 if class_value not in all_classes[class_title]:
-                    abort(403)
+                    return error.render_page("Virheellinen luokitus", "Virhe repun päivityksessä")
                 classes.append((class_title, class_value))
 
         packs.update_pack(pack_id, title, description, price, classes)
@@ -242,9 +243,9 @@ def remove_pack(pack_id):
     require_login()
     pack = packs.get_pack(pack_id)
     if not pack:
-        abort(404)
+        return error.render_page("Reppua ei löytynyt", "Virhe repun poistossa")
     if pack["user_id"] != session["user_id"]:
-        abort(403)
+        return error.render_page("Käyttäjällä ei ole oikeuksia poistaa reppua", "Virhe repun poistossa")
 
     if request.method == "GET":
         return render_template("remove_pack.html", pack=pack)
@@ -265,13 +266,23 @@ def create():
     username = request.form["username"]
     password1 = request.form["password1"]
     password2 = request.form["password2"]
+    if not username or not password1 or not password2:
+        return error.render_page("Kaikki kentät tulee täyttää",
+                                 "Virhe rekisteröinnissä")
     if password1 != password2:
-        return "VIRHE: salasanat eivät ole samat"
+        return error.render_page("Salasanat eivät täsmää",
+                                 "Virhe rekisteröinnissä")
+    if len(username) < 3:
+        return error.render_page("Käyttäjänimen tulee olla vähintään 3 merkkiä pitkä",
+                                 "Virhe rekisteröinnissä")
+    if len(password1) < 3:
+        return error.render_page("Salasanan tulee olla vähintään 3 merkkiä pitkä",
+                                 "Virhe rekisteröinnissä")
 
     try:
         users.create_user(username, password1)
     except sqlite3.IntegrityError:
-        abort(403)
+        return error.render_page("Käyttäjänimi jo käytössä", "Virhe rekisteröinnissä")
 
     return render_template("user_created.html", message="Tunnus luotu")
 
@@ -283,14 +294,20 @@ def login():
     if request.method == "POST":
         username = request.form["username"]
         password = request.form["password"]
+        if not username or not password:
+            return error.render_page("Kaikki kentät tulee täyttää", "Virhe kirjautumisessa")
 
-        user_id = users.check_login(username, password)
-        if user_id:
+        try:
+            result = users.check_login(username)
+            user_id = result["id"]
+            password_hash = result["password_hash"]
+        except:
+            return error.render_page("käyttäjätunnusta ei ole rekisteröity", "Virhe kirjautumisessa")
+        if check_password_hash(password_hash, password):
             session["user_id"] = user_id
             session["username"] = username
             return redirect("/")
-        else:
-            return "VIRHE: väärä tunnus tai salasana"
+        return error.render_page("Virheellinen käyttäjätunnus tai salasana", "Virhe kirjautumisessa")
 
 @app.route("/logout")
 def logout():
