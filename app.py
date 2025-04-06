@@ -60,7 +60,9 @@ def show_image(image_id):
 
 @app.route("/remove_comment/<int:comment_id>", methods=["POST"])
 def remove_comment(comment_id):
-    require_login()
+    result = require_login()
+    if result:
+        return result
 
     comment = packs.check_comment(comment_id)
     pack_id = request.form["pack_id"]
@@ -74,13 +76,17 @@ def remove_comment(comment_id):
 
 @app.route("/new_pack")
 def new_pack():
-    require_login()
+    result = require_login()
+    if result:
+        return result
     classes = (packs.get_all_classes())
     return render_template("new_pack.html", classes=classes)
 
 @app.route("/create_pack", methods=["POST"])
 def create_pack():
-    require_login()
+    result = require_login()
+    if result:
+        return result
 
     title = request.form["title"]
     if not title or len(title) > 50 or not title.strip():
@@ -111,7 +117,9 @@ def create_pack():
 
 @app.route("/create_comment", methods=["POST"])
 def create_comment():
-    require_login()
+    rresult = require_login()
+    if result:
+        return result
 
     comment = request.form["comment"]
     if not comment or len(comment) > 200:
@@ -130,7 +138,9 @@ def create_comment():
 
 @app.route("/edit_pack/<int:pack_id>")
 def edit_pack(pack_id):
-    require_login()
+    result = require_login()
+    if result:
+        return result
     pack = packs.get_pack(pack_id)
     if not pack:
         return error.render_page("Reppua ei löytynyt", "Virhe repun muokkauksessa")
@@ -148,7 +158,9 @@ def edit_pack(pack_id):
 
 @app.route("/images/<int:pack_id>")
 def edit_images(pack_id):
-    require_login()
+    result = require_login()
+    if result:
+        return result
     pack = packs.get_pack(pack_id)
     if not pack:
         return error.render_page("Reppua ei löytynyt", "Virhe kuvan muokkauksessa")
@@ -161,7 +173,9 @@ def edit_images(pack_id):
 
 @app.route("/add_image", methods=["POST"])
 def add_image():
-    require_login()
+    result = require_login()
+    if result:
+        return result
 
     pack_id = request.form["pack_id"]
     pack = packs.get_pack(pack_id)
@@ -183,7 +197,9 @@ def add_image():
 
 @app.route("/remove_images", methods=["POST"])
 def remove_images():
-    require_login()
+    result = require_login()
+    if result:
+        return result
 
     pack_id = request.form["pack_id"]
     pack = packs.get_pack(pack_id)
@@ -201,7 +217,9 @@ def remove_images():
 
 @app.route("/update_pack", methods=["POST"])
 def update_pack():
-    require_login()
+    result = require_login()
+    if result:
+        return result
     pack_id = request.form["pack_id"]
     pack = packs.get_pack(pack_id)
     if not pack:
@@ -240,7 +258,9 @@ def update_pack():
 
 @app.route("/remove_pack/<int:pack_id>", methods=["GET", "POST"])
 def remove_pack(pack_id):
-    require_login()
+    result = require_login()
+    if result:
+        return result
     pack = packs.get_pack(pack_id)
     if not pack:
         return error.render_page("Reppua ei löytynyt", "Virhe repun poistossa")
