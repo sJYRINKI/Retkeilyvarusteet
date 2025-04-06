@@ -33,7 +33,7 @@
 <h3>Kommentit</h3>
 <ul>
   {% for comment in comments %}
-  <li>{{ comment.comment }}, <a href="/user/{{ comment.user_id }}">{{ comment.username }}</a>
+  <li><pre>{{ comment.comment }}, <a href="/user/{{ comment.user_id }}">{{ comment.username }}</a></pre>
   {% if session.user_id == comment.user_id %}
   <form action="/remove_comment/{{ comment.id }}" method="post">
         <input type="hidden" name="pack_id" value="{{ pack.id }}" />
