@@ -1,0 +1,13 @@
+{% extends "layout.html" %}
+
+{% block title %}Käyttäjän poisto{% endblock %}
+
+{% block content %}
+<h2>Käyttäjän poisto</h2>
+<p>käyttäjä: {{ user.username }}</p>
+<p>Haluatko varmasti poistaa tämän käyttäjän </p>
+<form action="/remove_user/{{ user.id }}" method="post">
+  <input type="submit" name="remove" value="Poista käyttäjä">
+  <input type="submit" name="back" value="Palaa takaisin">
+</form>
+{% endblock %}

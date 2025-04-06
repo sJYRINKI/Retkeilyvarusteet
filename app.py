@@ -117,7 +117,7 @@ def create_pack():
 
 @app.route("/create_comment", methods=["POST"])
 def create_comment():
-    rresult = require_login()
+    result = require_login()
     if result:
         return result
 
@@ -335,3 +335,26 @@ def logout():
         del session["user_id"]
         del session["username"]
     return redirect("/")
+
+@app.route("/remove_user/<int:user_id>", methods=["GET", "POST"])
+def remove_user(user_id):
+    result = require_login()
+    if result:
+        return result
+    user = users.get_user(user_id)
+    user_id = user[0]
+    if not user:
+        return error.render_page("Käyttäjää ei löytynyt", "Virhe käyttäjätunnuksen poistossa")
+    if user_id != session["user_id"]:
+          return error.render_page("Käyttäjällä ei ole oikeuksia poistaa käyttäjää", "Virhe käyttäjätunnuksen poistossa")
+    if request.method == "GET":
+        return render_template("remove_user.html", user=user)
+
+    if request.method == "POST":
+        if "remove" in request.form:
+            users.remove_user(user_id)
+            del session["user_id"]
+            del session["username"]
+            return redirect("/")
+        else:
+            return redirect("/user/" + str(user_id))

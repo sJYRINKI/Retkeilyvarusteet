@@ -9,13 +9,13 @@ CREATE TABLE packs (
     title TEXT,
     description TEXT,
     price INTEGER,
-    user_id INTEGER REFERENCES users
+    user_id INTEGER REFERENCES users ON DELETE CASCADE
 );
 
 CREATE TABLE comments (
     id INTEGER PRIMARY KEY,
     pack_id INTEGER REFERENCES packs ON DELETE CASCADE,
-    user_id INTEGER REFERENCES users,
+    user_id INTEGER REFERENCES users ON DELETE CASCADE,
     comment TEXT
 );
 

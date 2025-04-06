@@ -18,3 +18,7 @@ def create_user(username, password):
 def check_login(username):
     sql = "SELECT id, password_hash FROM users WHERE username = ?"
     return db.query(sql, [username])[0]
+
+def remove_user(user_id):
+    sql = "DELETE FROM users WHERE id = ?"
+    db.execute(sql, [user_id])
