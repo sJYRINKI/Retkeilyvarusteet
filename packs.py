@@ -12,10 +12,10 @@ def get_all_classes():
 
     return classes
 
-def add_pack(title, description, price, user_id, classes):
-    sql = """INSERT INTO packs (title, description, price, user_id)
-             VALUES (?, ?, ?, ?)"""
-    db.execute(sql, [title, description, price, user_id])
+def add_pack(title, description, weight, price, user_id, classes):
+    sql = """INSERT INTO packs (title, description, weight, price, user_id)
+             VALUES (?, ?, ?, ?, ?)"""
+    db.execute(sql, [title, description, weight, price, user_id])
 
     pack_id = db.last_insert_id()
 
@@ -74,6 +74,7 @@ def get_pack(pack_id):
     sql = """SELECT packs.id,
                     packs.title,
                     packs.description,
+                    packs.weight,
                     packs.price,
                     users.id user_id,
                     users.username
@@ -83,12 +84,13 @@ def get_pack(pack_id):
     result = db.query(sql, [pack_id])
     return result[0] if result else None
 
-def update_pack(pack_id, title, description, price, classes):
+def update_pack(pack_id, title, description, weight, price, classes):
     sql = """UPDATE packs SET title = ?,
                               description = ?,
+                              weight = ?,
                               price = ?
                           WHERE id = ?"""
-    db.execute(sql, [title, description, price, pack_id])
+    db.execute(sql, [title, description, weight, price, pack_id])
 
     sql = "DELETE FROM pack_classes WHERE pack_id = ?"
     db.execute(sql, [pack_id])

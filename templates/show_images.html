@@ -1,0 +1,21 @@
+{% extends "layout.html" %}
+
+{% block title %}Varusteiden kuvat{% endblock %}
+
+{% block content %}
+<h2>Varusteiden kuvat</h2>
+
+<p>
+  Varusteista on {{ images | count }} kuvaa.
+</p>
+<p>
+{% for image in images %}
+<img src="/image/{{ image.id }}" />
+{% endfor %}
+</p>
+
+<form action="/pack/{{ pack.id }}">
+    <input type="submit" value="Palaa reppuun" />
+  </form>
+
+{% endblock %}

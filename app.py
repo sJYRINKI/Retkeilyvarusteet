@@ -94,6 +94,9 @@ def create_pack():
     description = request.form["description"]
     if not description or len(description) > 1000:
         return error.render_page("Virheellinen repun kuvaus", "Virhe repun lisäämisessä")
+    weight = request.form["weight"]
+    if not re.search("^[1-9][0-9]{0,2}$", weight):
+        return error.render_page("Virheellinen paino repun sisällölle", "Virhe repun lisäämisessä")
     price = request.form["price"]
     if not re.search("^[1-9][0-9]{0,3}$", price):
         return error.render_page("Virheellinen hinta repun sisällölle", "Virhe repun lisäämisessä")
@@ -111,7 +114,7 @@ def create_pack():
                 return error.render_page("Virheellinen luokitus", "Virhe repun lisäämisessä")
             classes.append((class_title, class_value))
 
-    packs.add_pack(title, description, price,  user_id, classes)
+    packs.add_pack(title, description, weight, price,  user_id, classes)
 
     return redirect("/")
 
@@ -156,7 +159,7 @@ def edit_pack(pack_id):
 
     return render_template("edit_pack.html", pack=pack, classes=classes, all_classes=all_classes)
 
-@app.route("/images/<int:pack_id>")
+@app.route("/edit_images/<int:pack_id>")
 def edit_images(pack_id):
     result = require_login()
     if result:
@@ -169,7 +172,17 @@ def edit_images(pack_id):
 
     images = packs.get_images(pack_id)
 
-    return render_template("images.html", pack=pack, images=images)
+    return render_template("edit_images.html", pack=pack, images=images)
+
+@app.route("/show_images/<int:pack_id>")
+def show_images(pack_id):
+    pack = packs.get_pack(pack_id)
+    if not pack:
+        return error.render_page("Reppua ei löytynyt", "Virhe kuvien näyttämisessä")
+
+    images = packs.get_images(pack_id)
+
+    return render_template("show_images.html", pack=pack, images=images)
 
 @app.route("/add_image", methods=["POST"])
 def add_image():
@@ -233,6 +246,9 @@ def update_pack():
     description = request.form["description"]
     if not description or len(description) > 1000:
         return error.render_page("Virheellinen kuvaus repulle", "Virhe repun päivityksessä")
+    weight = request.form["weight"]
+    if not re.search("^[1-9][0-9]{0,2}$", weight):
+        return error.render_page("Virheellinen paino repun sisällölle", "Virhe repun päivityksessä")
     price = request.form["price"]
     if not re.search("^[1-9][0-9]{0,3}$", price):
         return error.render_page("Virheellinen hinta repun sisällölle", "Virhe repun päivityksessä")
@@ -250,7 +266,7 @@ def update_pack():
                     return error.render_page("Virheellinen luokitus", "Virhe repun päivityksessä")
                 classes.append((class_title, class_value))
 
-        packs.update_pack(pack_id, title, description, price, classes)
+        packs.update_pack(pack_id, title, description, weight, price, classes)
         return redirect("/pack/" + str(pack_id))
 
     else:

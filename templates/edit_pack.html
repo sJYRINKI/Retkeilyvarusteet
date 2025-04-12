@@ -14,6 +14,10 @@
       <textarea name="description" rows="8" cols="60" maxlength="100" required>{{ pack.description }}</textarea>
   </p>
   <p>
+  Repun paino <br />
+  <input type="text" name="weight" size="5" value="{{ pack.weight }}" pattern="[1-9][0-9]{0,2}" required /> €
+  </p>
+  <p>
   Repun hinta <br />
   <input type="text" name="price" size="5" value="{{ pack.price }}" pattern="[1-9][0-9]{0,3}" required /> €
   </p>

@@ -8,6 +8,7 @@ CREATE TABLE packs (
     id INTEGER PRIMARY KEY,
     title TEXT,
     description TEXT,
+    weight INTEGER,
     price INTEGER,
     user_id INTEGER REFERENCES users ON DELETE CASCADE
 );

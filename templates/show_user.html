@@ -4,9 +4,11 @@
 
 {% block content %}
 <h2>Käyttäjä {{ user.username }}</h2>
+{% if session.user_id == user.id %}
 <p>
   <a href="/remove_user/{{ user.id }}">Poista käyttäjä</a>
 </p>
+{% endif %}
 <p>
   Käyttäjällä on yhteensä {{ packs | count }} ilmoitusta.
 </p>

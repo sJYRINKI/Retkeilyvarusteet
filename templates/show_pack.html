@@ -8,14 +8,22 @@
 <p>
   <a href="/edit_pack/{{ pack.id }}">Muokkaa</a>
   <a href="/remove_pack/{{ pack.id }}">Poista</a>
-  <a href="/images/{{ pack.id }}">Kuvat</a>
+  <a href="/edit_images/{{ pack.id }}">Kuvat</a>
 </p>
 {% endif %}
 <p>
+{% if session.user_id != pack.user_id %}
+<p>
+  <a href="/show_images/{{ pack.id }}">Kuvat</a>
+</p>
+{% endif %}
   <pre>{{ pack.description }}</pre>
 </p>
 <p>
-  Repunhinta: {{ pack.price}} €
+  Repun paino: {{ pack.weight }} kg
+</p>
+<p>
+  Repun hinta: {{ pack.price }} €
 </p>
 <p>
   Repun omistaja: <a href="/user/{{ pack.user_id }}">{{ pack.username  }} </a>
