@@ -22,3 +22,7 @@ def check_login(username):
 def remove_user(user_id):
     sql = "DELETE FROM users WHERE id = ?"
     db.execute(sql, [user_id])
+
+def get_comments(user_id):
+    sql = "SELECT id, comment FROM comments WHERE user_id = ? ORDER BY id DESC"
+    return db.query(sql, [user_id])

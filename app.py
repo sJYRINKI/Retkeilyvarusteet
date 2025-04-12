@@ -25,8 +25,9 @@ def show_user(user_id):
     user = users.get_user(user_id)
     if not user:
         return error.render_page("Käyttäjää ei löytynyt", "Virhe käyttäjän hakemisessa")
+    comments = users.get_comments(user_id)
     packs = users.get_packs(user_id)
-    return render_template("show_user.html", user=user, packs=packs)
+    return render_template("show_user.html", user=user, comments=comments, packs=packs)
 
 @app.route("/find_pack")
 def find_pack():
