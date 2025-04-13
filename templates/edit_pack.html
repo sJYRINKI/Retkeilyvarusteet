@@ -7,26 +7,26 @@
 <h3>Repun muokkaus</h3>
 <form action="/update_pack" method="post">
   <p>
-    Repun nimi: <br />
-    <input type="text" name="title" value="{{ pack.title}}" maxlength="50" required />
+    <label for="title">Repun nimi:</label> <br />
+    <input type="text" name="title" id="title" value="{{ pack.title}}" maxlength="50" required />
   </p>
   <p>
-      Sisältö: <br />
-      <textarea name="description" rows="8" cols="60" maxlength="100" required>{{ pack.description }}</textarea>
+      <label for="description">Sisältö:</label> <br />
+      <textarea name="description" id="description" rows="8" cols="60" maxlength="100" required>{{ pack.description }}</textarea>
   </p>
   <p>
-  Repun paino <br />
-  <input type="text" name="weight" size="5" value="{{ pack.weight }}" pattern="[1-9][0-9]{0,2}" required /> €
+  <label for="weight">Repun paino:</label> <br />
+  <input type="text" name="weight" id="weight" size="5" value="{{ pack.weight }}" pattern="[1-9][0-9]{0,2}" required /> €
   </p>
   <p>
-  Repun hinta <br />
-  <input type="text" name="price" size="5" value="{{ pack.price }}" pattern="[1-9][0-9]{0,3}" required /> €
+  <label for="price">Repun hinta:</label> <br />
+  <input type="text" name="price" id="price" size="5" value="{{ pack.price }}" pattern="[1-9][0-9]{0,3}" required /> €
   </p>
   <input type="hidden" name="pack_id" value="{{ pack.id }}" />
       {% for class in all_classes %}
   <p>
-    {{ class }}: <br />
-    <select name="classes">
+    <label for="class{{ class }}">{{ class }}:</label> <br />
+    <select name="classes" id="class{{ class }}">
       <option value="">(valitse)</option>
     {% for option in all_classes[class] %}
       {% if classes[class] == option %}
