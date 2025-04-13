@@ -66,8 +66,12 @@ def get_classes(pack_id):
     return db.query(sql, [pack_id])
 
 def get_packs():
-    sql = "SELECT id, title FROM packs ORDER BY id DESC"
-
+    sql = """SELECT packs.id, packs.title, users.id user_id, users.username,
+                    COUNT(comments.id) comment_count
+             FROM packs JOIN users ON packs.user_id = users.id
+                        LEFT JOIN comments ON packs.id = comments.pack_id
+             GROUP BY packs.id
+             ORDER BY packs.id DESC"""
     return db.query(sql)
 
 def get_pack(pack_id):

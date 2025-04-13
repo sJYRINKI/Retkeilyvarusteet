@@ -5,9 +5,14 @@
 {% block content %}
 <h2>Reput</h2>
 
-<ul>
-  {% for pack in packs %}
-  <li><a href="/pack/{{ pack.id }}">{{ pack.title }}</a></li>
-  {% endfor %}
-  </ul>
+
+{% for pack in packs %}
+<div class="item">
+<a href="/pack/{{ pack.id }}">{{ pack.title }}</a> <br />
+Repun omistaja: <a href="/user/{{ pack.user_id }}">{{ pack.username }}</a> <br />
+Kommentien määrä: {{ pack.comment_count }}
+
+</div>
+{% endfor %}
+
 {% endblock %}

@@ -1,12 +1,12 @@
 import sqlite3
 from flask import Flask
 from flask import abort, make_response, redirect, render_template, request, session
+from werkzeug.security import check_password_hash
 import config
 import packs
 import re
 import users
 import error
-from werkzeug.security import check_password_hash, generate_password_hash
 
 app = Flask(__name__)
 app.secret_key = config.secret_key
@@ -373,5 +373,5 @@ def remove_user(user_id):
             del session["user_id"]
             del session["username"]
             return redirect("/")
-        else:
-            return redirect("/user/" + str(user_id))
+
+        return redirect("/user/" + str(user_id))
