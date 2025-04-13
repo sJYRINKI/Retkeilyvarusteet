@@ -17,27 +17,21 @@
   <a href="/show_images/{{ pack.id }}">Kuvat</a>
 </p>
 {% endif %}
+<p>
+  <h4>Repun isältö:</h4>
   <pre>{{ pack.description }}</pre>
 </p>
-<p>
-  Repun paino: {{ pack.weight }} kg
-</p>
-<p>
-  Repun hinta: {{ pack.price }} €
-</p>
-<p>
-  Repun omistaja: <a href="/user/{{ pack.user_id }}">{{ pack.username  }} </a>
-</p>
+<ul>
+  <li>Repun paino: {{ pack.weight }} kg</li>
+  <li>Repun hinta: {{ pack.price }} €</li>
+  <li>Repun omistaja: <a href="/user/{{ pack.user_id }}">{{ pack.username  }} </a></li>
 {% if classes %}
-<p>
-  Luokat:
-  <ul>
     {% for class in classes %}
     <li>{{ class.title }}: {{ class.value }}</li>
     {% endfor %}
-  </ul>
-</p>
 {% endif %}
+</ul>
+{% if comments %}
 <h3>Kommentit</h3>
 <ul>
   {% for comment in comments %}
@@ -52,6 +46,8 @@
 
   {% endfor %}
 </ul>
+{% endif %}
+{% if session.user_id %}
 <h3>Uusi kommentti</h3>
 <form action="/create_comment" method="post">
   Kommentti: <br />
@@ -59,4 +55,5 @@
   <input type="hidden" name="pack_id" value="{{ pack.id }}">
   <input type="submit" value="Kommentoi" />
 </form>
+{% endif %}
 {% endblock %}

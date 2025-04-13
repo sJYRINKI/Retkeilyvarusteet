@@ -3,6 +3,7 @@
 {% block title %}Retkeilyvarusteet{% endblock %}
 
 {% block content %}
+{% if packs %}
 <h2>Reput</h2>
 
 
@@ -14,5 +15,6 @@ Kommentien määrä: {{ pack.comment_count }}
 
 </div>
 {% endfor %}
+{% endif %}
 
 {% endblock %}
