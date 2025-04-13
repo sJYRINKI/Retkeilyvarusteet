@@ -3,6 +3,7 @@
 {% block title %}{{ pack.title }}{% endblock %}
 
 {% block content %}
+<div class="pack">
 <h2>{{ pack.title }}</h2>
 {% if session.user_id == pack.user_id %}
 <p>
@@ -18,7 +19,7 @@
 </p>
 {% endif %}
 <p>
-  <h4>Repun isältö:</h4>
+  <h4>Repun sisältö:</h4>
   <pre>{{ pack.description }}</pre>
 </p>
 <ul>
@@ -31,7 +32,9 @@
     {% endfor %}
 {% endif %}
 </ul>
+</div>
 {% if comments %}
+<div class="comment"
 <h3>Kommentit</h3>
 <ul>
   {% for comment in comments %}
@@ -46,6 +49,7 @@
   </li>
 
   {% endfor %}
+  </div>
 </ul>
 {% endif %}
 {% if session.user_id %}

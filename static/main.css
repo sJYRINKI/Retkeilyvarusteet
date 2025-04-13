@@ -2,11 +2,38 @@ body {
   margin: auto;
   max-width: 50em;
   font-family: sans-serif;
-  background-color: lightblue;
+  background-color: rgba(254,225,3,255);
+}
+
+.header {
+  background-color: black;
+  color: rgba(254,225,3,255);
+  padding: 1em;
+  margin: auto;
+  max-width: 75em;
+  font-family: sans-serif;
+  text-align: center;
+  font-size: 1em;
 }
 
 .item {
   border: 2px solid black;
   margin: 1em;
   padding: 0.2em 0.5em;
+}
+
+.pack {
+    background-color: rgba(254,225,3,255);
+    border: 2px solid black;
+    margin: 1em;
+    padding: 0.2em;
+}
+
+.comment {
+    word-wrap: break-word;
+    max-width: 2000px;
+    background-color: rgba(254,225,3,255);
+    border: 2px solid black;
+    margin: 1em;
+    padding: 0.2em;
 }
