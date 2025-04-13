@@ -198,7 +198,7 @@ def add_image():
     if not pack:
         return error.render_page("Reppua ei löytynyt", "Virhe kuvan lisäyksessä")
     if pack["user_id"] != session["user_id"]:
-        abort(403)
+        return error.render_page("Käyttäjällä ei ole oikeutta lisätä kuvaa", "Virhe kuvan lisäyksessä")
 
     file = request.files["image"]
     if not file.filename.endswith(".png"):
@@ -209,7 +209,7 @@ def add_image():
         return error.render_page("Virhe kuvan koossa", "Virhe kuvan lisäyksessä")
 
     packs.add_image(pack_id, image)
-    return redirect("/images/" + str(pack_id))
+    return redirect("/edit_images/" + str(pack_id))
 
 @app.route("/remove_images", methods=["POST"])
 def remove_images():
@@ -227,7 +227,7 @@ def remove_images():
     if "remove" in request.form:
         for image_id in request.form.getlist("image_id"):
             packs.remove_image(pack_id, image_id)
-            return redirect("/images/" + str(pack_id))
+            return redirect("/edit_images/" + str(pack_id))
     else:
         return redirect("/pack/" + str(pack_id))
 
