@@ -116,9 +116,8 @@ def create_pack():
                 return error.render_page("Virheellinen luokitus", "Virhe repun lisäämisessä")
             classes.append((class_title, class_value))
 
-    packs.add_pack(title, description, weight, price,  user_id, classes)
+    pack_id = packs.add_pack(title, description, weight, price,  user_id, classes)
 
-    pack_id = db.last_insert_id()
     return redirect("/pack/" + str(pack_id))
 
 @app.route("/create_comment", methods=["POST"])

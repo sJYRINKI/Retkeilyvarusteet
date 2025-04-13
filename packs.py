@@ -22,6 +22,7 @@ def add_pack(title, description, weight, price, user_id, classes):
     sql = "INSERT INTO pack_classes (pack_id, title, value) VALUES (?, ?, ?)"
     for title, value in classes:
         db.execute(sql, [pack_id, title, value])
+    return pack_id
 
 def add_comment(pack_id, user_id, comment):
     sql = """INSERT INTO comments (pack_id, user_id, comment)
