@@ -1,4 +1,5 @@
 import sqlite3
+import secrets
 from flask import Flask
 from flask import abort, make_response, redirect, render_template, request, session
 from werkzeug.security import check_password_hash
@@ -15,6 +16,12 @@ app.secret_key = config.secret_key
 def require_login():
     if "user_id" not in session:
         return error.render_page("Kirjautuminen vaaditaan", "Virhe kirjautumisessa")
+
+def check_csrf():
+    if "csrf_token" not in request.form:
+        return error.render_page('Istuntoa ei voitu vahvistaa', 'Virhe istunnon tietojen hakemisessa')
+    if request.form["csrf_token"] != session["csrf_token"]:
+        return error.render_page('Istuntoa ei voitu vahvistaa', 'Virhe istunnon tietojen hakemisessa')
 
 @app.route("/")
 def index():
@@ -62,9 +69,12 @@ def show_image(image_id):
 
 @app.route("/remove_comment/<int:comment_id>", methods=["POST"])
 def remove_comment(comment_id):
-    result = require_login()
-    if result:
-        return result
+    result_login = require_login()
+    if result_login:
+        return result_login
+    result_csrf = check_csrf()
+    if result_csrf:
+        return result_csrf
 
     comment = packs.check_comment(comment_id)
     pack_id = request.form["pack_id"]
@@ -78,17 +88,20 @@ def remove_comment(comment_id):
 
 @app.route("/new_pack")
 def new_pack():
-    result = require_login()
-    if result:
-        return result
+    result_login = require_login()
+    if result_login:
+        return result_login
     classes = (packs.get_all_classes())
     return render_template("new_pack.html", classes=classes)
 
 @app.route("/create_pack", methods=["POST"])
 def create_pack():
-    result = require_login()
-    if result:
-        return result
+    result_login = require_login()
+    if result_login:
+        return result_login
+    result_csrf = check_csrf()
+    if result_csrf:
+        return result_csrf
 
     title = request.form["title"]
     if not title or len(title) > 50 or not title.strip():
@@ -122,9 +135,12 @@ def create_pack():
 
 @app.route("/create_comment", methods=["POST"])
 def create_comment():
-    result = require_login()
-    if result:
-        return result
+    result_login = require_login()
+    if result_login:
+        return result_login
+    result_csrf = check_csrf()
+    if result_csrf:
+        return result_csrf
 
     comment = request.form["comment"]
     if not comment or len(comment) > 200:
@@ -143,9 +159,9 @@ def create_comment():
 
 @app.route("/edit_pack/<int:pack_id>")
 def edit_pack(pack_id):
-    result = require_login()
-    if result:
-        return result
+    result_login = require_login()
+    if result_login:
+        return result_login
     pack = packs.get_pack(pack_id)
     if not pack:
         return error.render_page("Reppua ei löytynyt", "Virhe repun muokkauksessa")
@@ -163,9 +179,9 @@ def edit_pack(pack_id):
 
 @app.route("/edit_images/<int:pack_id>")
 def edit_images(pack_id):
-    result = require_login()
-    if result:
-        return result
+    result_login = require_login()
+    if result_login:
+        return result_login
     pack = packs.get_pack(pack_id)
     if not pack:
         return error.render_page("Reppua ei löytynyt", "Virhe kuvan muokkauksessa")
@@ -188,9 +204,12 @@ def show_images(pack_id):
 
 @app.route("/add_image", methods=["POST"])
 def add_image():
-    result = require_login()
-    if result:
-        return result
+    result_login = require_login()
+    if result_login:
+        return result_login
+    result_csrf = check_csrf()
+    if result_csrf:
+        return result_csrf
 
     pack_id = request.form["pack_id"]
     pack = packs.get_pack(pack_id)
@@ -212,9 +231,12 @@ def add_image():
 
 @app.route("/remove_images", methods=["POST"])
 def remove_images():
-    result = require_login()
-    if result:
-        return result
+    result_login = require_login()
+    if result_login:
+        return result_login
+    result_csrf = check_csrf()
+    if result_csrf:
+        return result_csrf
 
     pack_id = request.form["pack_id"]
     pack = packs.get_pack(pack_id)
@@ -224,6 +246,9 @@ def remove_images():
         return error.render_page("Käyttäjällä ei ole oikeutta kuvan poistoon", "Virhe kuvan poistossa")
 
     if "remove" in request.form:
+        image_ids = request.form.getlist("image_id")
+        if not image_ids:
+            return error.render_page("Et valinnut kuvia poistettavaksi", "Virhe kuvan poistossa")
         for image_id in request.form.getlist("image_id"):
             packs.remove_image(pack_id, image_id)
             return redirect("/edit_images/" + str(pack_id))
@@ -232,9 +257,13 @@ def remove_images():
 
 @app.route("/update_pack", methods=["POST"])
 def update_pack():
-    result = require_login()
-    if result:
-        return result
+    result_login = require_login()
+    if result_login:
+        return result_login
+    result_csrf = check_csrf()
+    if result_csrf:
+        return result_csrf
+
     pack_id = request.form["pack_id"]
     pack = packs.get_pack(pack_id)
     if not pack:
@@ -276,9 +305,9 @@ def update_pack():
 
 @app.route("/remove_pack/<int:pack_id>", methods=["GET", "POST"])
 def remove_pack(pack_id):
-    result = require_login()
-    if result:
-        return result
+    result_login = require_login()
+    if result_login:
+        return result_login
     pack = packs.get_pack(pack_id)
     if not pack:
         return error.render_page("Reppua ei löytynyt", "Virhe repun poistossa")
@@ -289,6 +318,9 @@ def remove_pack(pack_id):
         return render_template("remove_pack.html", pack=pack)
 
     if request.method == "POST":
+        result_csrf = check_csrf()
+        if result_csrf:
+            return result_csrf
         if "remove" in request.form:
             packs.remove_pack(pack_id)
             return redirect("/")
@@ -344,6 +376,7 @@ def login():
         if check_password_hash(password_hash, password):
             session["user_id"] = user_id
             session["username"] = username
+            session["csrf_token"] = secrets.token_hex(16)
             return redirect("/")
         return error.render_page("Virheellinen käyttäjätunnus tai salasana", "Virhe kirjautumisessa")
 
@@ -356,9 +389,9 @@ def logout():
 
 @app.route("/remove_user/<int:user_id>", methods=["GET", "POST"])
 def remove_user(user_id):
-    result = require_login()
-    if result:
-        return result
+    result_login = require_login()
+    if result_login:
+        return result_login
     user = users.get_user(user_id)
     user_id = user[0]
     if not user:
@@ -369,6 +402,9 @@ def remove_user(user_id):
         return render_template("remove_user.html", user=user)
 
     if request.method == "POST":
+        result_csrf = check_csrf()
+        if result_csrf:
+            return result_csrf
         if "remove" in request.form:
             users.remove_user(user_id)
             del session["user_id"]

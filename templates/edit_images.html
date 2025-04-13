@@ -17,6 +17,7 @@
   <br />
   {% endfor %}
   <input type="hidden" name="pack_id" value="{{ pack.id }}" />
+  <input type="hidden" name="csrf_token" value="{{ session.csrf_token }}" />
   <p>
     <input type="submit" name="remove" value="Poista valitut" />
     <input type="submit" name="back" value="Palaa takaisin">
@@ -29,6 +30,7 @@
     Kuva: <input type="file" name="image" accept=".png" />
   </p>
   <input type="hidden" name="pack_id" value="{{ pack.id }}" />
+  <input type="hidden" name="csrf_token" value="{{ session.csrf_token }}" />
   <input type="submit" value="Lähetä" />
 </form>
 {% endblock %}
