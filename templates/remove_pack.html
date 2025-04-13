@@ -3,8 +3,8 @@
 {% block title %}Repun poisto{% endblock %}
 
 {% block content %}
-<h2>Repun poisto</h2>
-<p>Reppu: {{ pack.title }}</p>
+<h2>{{ pack.title }}</h2>
+<h3>Repun poisto</h3>
 <p>Haluatko varmasti poistaa tämän repun </p>
 <form action="/remove_pack/{{ pack.id }}" method="post">
   <input type="submit" name="remove" value="Poista reppu">
