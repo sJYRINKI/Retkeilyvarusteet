@@ -7,6 +7,7 @@ import packs
 import re
 import users
 import error
+import db
 
 app = Flask(__name__)
 app.secret_key = config.secret_key
@@ -117,7 +118,8 @@ def create_pack():
 
     packs.add_pack(title, description, weight, price,  user_id, classes)
 
-    return redirect("/")
+    pack_id = db.last_insert_id()
+    return redirect("/pack/" + str(pack_id))
 
 @app.route("/create_comment", methods=["POST"])
 def create_comment():
