@@ -1,5 +1,6 @@
 import sqlite3
 import secrets
+import math
 from flask import Flask
 from flask import abort, make_response, redirect, render_template, request, session
 from werkzeug.security import check_password_hash
@@ -24,9 +25,21 @@ def check_csrf():
         return error.render_page('Istuntoa ei voitu vahvistaa', 'Virhe istunnon tietojen hakemisessa')
 
 @app.route("/")
-def index():
-    all_packs = packs.get_packs()
-    return render_template("index.html", packs=all_packs)
+@app.route("/<int:page>")
+def index(page=1):
+    pack_count = packs.pack_count()
+    page_size = 10
+    page_count = math.ceil(pack_count / page_size)
+    page_count = max(page_count, 1)
+
+    if page < 1:
+        return redirect("/1")
+    if page > page_count:
+        return redirect("/" + str(page_count))
+
+    all_packs = packs.get_packs(page, page_size)
+    return render_template("index.html", packs=all_packs,
+                           page=page, page_count=page_count)
 
 @app.route("/user/<int:user_id>")
 def show_user(user_id):
@@ -38,14 +51,23 @@ def show_user(user_id):
     return render_template("show_user.html", user=user, comments=comments, packs=packs)
 
 @app.route("/find_pack")
-def find_pack():
+@app.route("/find_pack/<int:page>")
+def find_pack(page=1):
+    page_size = 10
     query = request.args.get("query")
-    if query:
-        results = packs.find_packs(query)
-    else:
-        query = ""
-        results = []
-    return render_template("find_pack.html", query=query, results=results)
+    search = query or ""
+
+    results, pack_count = packs.find_packs(search, page, page_size)
+
+    page_count = math.ceil(pack_count / page_size)
+    page_count = max(page_count, 1)
+
+    if page < 1:
+        return redirect("/find_conversation/1")
+    if page > page_count:
+        return redirect("/find_pack/" + str(page_count))
+
+    return render_template("find_pack.html", query=query, results=results, page=page, page_count=page_count)
 
 @app.route("/pack/<int:pack_id>")
 def show_pack(pack_id):

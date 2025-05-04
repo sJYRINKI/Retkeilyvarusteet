@@ -12,6 +12,10 @@ def get_all_classes():
 
     return classes
 
+def pack_count():
+    sql = "SELECT COUNT(*) FROM packs"
+    return db.query(sql)[0][0]
+
 def add_pack(title, description, weight, price, user_id, classes):
     sql = """INSERT INTO packs (title, description, weight, price, user_id)
              VALUES (?, ?, ?, ?, ?)"""
@@ -66,14 +70,16 @@ def get_classes(pack_id):
     sql = "SELECT title, value FROM pack_classes WHERE pack_id = ?"
     return db.query(sql, [pack_id])
 
-def get_packs():
+def get_packs(page, page_size):
     sql = """SELECT packs.id, packs.title, users.id user_id, users.username,
                     COUNT(comments.id) comment_count
              FROM packs JOIN users ON packs.user_id = users.id
                         LEFT JOIN comments ON packs.id = comments.pack_id
              GROUP BY packs.id
-             ORDER BY packs.id DESC"""
-    return db.query(sql)
+             ORDER BY packs.id DESC
+             LIMIT ? OFFSET ?"""
+    offset = (page - 1) * page_size
+    return db.query(sql, (page_size, offset))
 
 def get_pack(pack_id):
     sql = """SELECT packs.id,
@@ -108,10 +114,20 @@ def remove_pack(pack_id):
     sql = """DELETE FROM packs WHERE id = ?"""
     db.execute(sql, [pack_id])
 
-def find_packs(query):
+def find_packs(search, page, page_size):
+    like = "%" + search + "%"
+
     sql = """SELECT id, title
              FROM packs
              WHERE title LIKE ? OR description LIKE ?
-             ORDER BY id DESC"""
-    like = "%" + query + "%"
-    return db.query(sql, [like, like])
+             ORDER BY id DESC
+             LIMIT ? OFFSET ?"""
+    offset = (page - 1) * page_size
+    results = db.query(sql, [like, like, page_size, offset])
+
+    count_sql = """SELECT COUNT(*) FROM packs
+                   WHERE title LIKE ? OR description LIKE ?"""
+    count_result = db.query(count_sql, [like, like])
+    pack_count = count_result[0][0] if count_result else 0
+
+    return results, pack_count

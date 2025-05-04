@@ -7,7 +7,7 @@
 
 <form action="/find_pack" method="get">
 <p>
-  <label for="query">Hakusana:</label> <input type="text" name="query" id="query" value="{{ query }}">
+  <label for="query">Hakusana:</label> <input type="text" name="query" id="query" value="{{ query if query else '' }}">
 </p>
 <input type="submit" value="Hae">
 </form>
@@ -20,5 +20,17 @@
   <li><a href="/pack/{{ pack.id }}">{{ pack.title }}</a></li>
   {% endfor %}
 </ul>
+{% if page_count > 1 %}
+<p>
+  <a href="/find_pack/1?query={{ query|urlencode }}">&laquo;&laquo;</a>
+  <a href="/find_pack/{{ page - 1 }}?query={{ query|urlencode }}">&lt;&lt;</a>
+
+  Sivu {{ page }}/{{ page_count }}
+
+  <a href="/find_pack/{{ page + 1 }}?query={{ query|urlencode }}">&gt;&gt;</a>
+  <a href="/find_pack/{{ page_count }}?query={{ query|urlencode }}">&raquo;&raquo;</a>
+</p>
+<hr />
+{% endif %}
 {% endif %}
 {% endblock %}
